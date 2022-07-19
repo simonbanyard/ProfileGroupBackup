@@ -7,17 +7,9 @@ import mimecast as mc
 find_groups = "/api/directory/find-groups"
 members = "/api/directory/get-group-members"
 
-# Get Data for Group IDs
-headers = {
-    "Authorization": mc.auth(find_groups),
-    "x-mc-app-id": mc.app_id,
-    "x-mc-date": mc.hdr_date,
-    "x-mc-req-id": mc.request_id,
-    "Content-Type": "application/json",
-}
 data = str({"meta": {"pagination": {"pageSize": 500}}})
 
-groups = mc.send_request(find_groups, headers, data)
+groups = mc.send_request(find_groups, data)
 
 # Export to Excel with Pandas
 if not os.path.isdir("data"):
@@ -29,3 +21,21 @@ groups_df.to_excel(
     index=False,
     columns=["description", "userCount", "folderCount", "id"],
 )
+
+group_ids = dict(zip(groups_df["description"], groups_df["id"]))
+
+for group_id in group_ids:
+    data = str(
+        {
+            "meta": {"pagination": {"pageSize": 500}},
+            "data": [{"id": group_ids[group_id]}],
+        }
+    )
+    profile_groups = mc.send_request(members, data)
+
+    print(group_id, "\n")
+    profile_groups_df = pd.DataFrame(profile_groups["data"][0]["groupMembers"])
+    profile_groups_df.to_excel(
+        f"data/{group_id}.xlsx",
+        index=False,
+    )
