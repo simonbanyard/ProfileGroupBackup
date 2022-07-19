@@ -2,28 +2,28 @@ import base64
 import hashlib
 import hmac
 import json
-import os
 import time
+
 import uuid
-
+from configparser import ConfigParser
 import requests
-from dotenv import load_dotenv
 
-load_dotenv()
+config = ConfigParser()
+config.read("secrets.ini")
 
 # Setup account details
 # BASE_URL: Replace xx with the region the account is hosted in
 # Keys are obtained from your Mimecast account, see
 # https://community.mimecast.com/s/article/Managing-API-Applications-505230018
 base_url = "https://eu-api.mimecast.com"
-access_key = os.environ.get("access_key")
-secret_key = os.environ.get("secret_key")
-app_id = os.environ.get("app_id")
-app_key = os.environ.get("app_key")
+access_key = config["mimecast"]["access_key"]
+secret_key = config["mimecast"]["secret_key"]
+app_id = config["mimecast"]["app_id"]
+app_key = config["mimecast"]["app_key"]
 
 # Generate UUID based on RFC4122 and Date/Time based on RFC1123/2822
 request_id = str(uuid.uuid4())
-hdr_date = time.strftime("%a, %d %b %Y %H:%M:%S %Z")
+hdr_date = time.strftime("%a, %d %b %Y %H:%M:%S %z")
 
 
 def auth(uri):
@@ -43,12 +43,18 @@ def auth(uri):
     return f"MC {access_key}:{str(sig.decode())}"
 
 
-def send_request(uri, header, body):
+def send_request(uri, body):
     """Send Request"""
     try:
         response = requests.post(
             url=base_url + uri,
-            headers=header,
+            headers={
+                "Authorization": auth(uri),
+                "x-mc-app-id": app_id,
+                "x-mc-date": hdr_date,
+                "x-mc-req-id": request_id,
+                "Content-Type": "application/json",
+            },
             data=body,
         )
         response.raise_for_status()
