@@ -51,16 +51,19 @@ for group_id in group_ids:
     while "next" in profile_groups.get("meta").get("pagination"):
         members_data = str(
             {
-                "meta": {"pagination": {"pageSize": 500, "pageToken": page_token}},
+                "meta": {
+                    "pagination": {"pageSize": 500, "pageToken": page_token}},
                 "data": [{"id": group_ids[group_id]}],
             }
         )
         profile_groups = mc.send_request(members, members_data)
         profile_groups_df = pd.concat(
-            [profile_groups_df, pd.DataFrame(profile_groups["data"][0]["groupMembers"])]
+            [profile_groups_df,
+             pd.DataFrame(profile_groups["data"][0]["groupMembers"])]
         )
         if profile_groups.get("meta").get("pagination").get("next"):
-            page_token = profile_groups.get("meta").get("pagination").get("next")
+            page_token = profile_groups.get("meta").get("pagination").get(
+                "next")
 
     profile_groups_df.to_excel(f"{directory_name}/{group_id}.xlsx", index=False)
     request_count += 1
