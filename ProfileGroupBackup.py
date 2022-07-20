@@ -40,6 +40,7 @@ print("=" * 61, "\n")
 group_ids = dict(zip(groups_df["description"], groups_df["id"]))
 
 # Loop over dictionary
+request_count = 0
 for group_id in group_ids:
     members_data = str(
         {
@@ -89,3 +90,6 @@ for group_id in group_ids:
             page_token = profile_groups.get("meta").get("pagination").get("next")
 
     profile_groups_df.to_excel(f"data/{group_id}.xlsx", index=False)
+    request_count += 1
+
+print(f"{request_count} files downloaded.")
