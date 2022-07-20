@@ -35,8 +35,16 @@ group_ids = dict(zip(groups_df["description"], groups_df["id"]))
 for group_id in group_ids:
     data = str(
         {
-            "meta": {"pagination": {"pageSize": 500}},
-            "data": [{"id": group_ids[group_id]}],
+            "meta": {
+                "pagination": {
+                    "pageSize": 500
+                }
+            },
+            "data": [
+                {
+                    "id": group_ids[group_id]
+                }
+            ]
         }
     )
     profile_groups = mc.send_request(members, data)
@@ -63,7 +71,12 @@ for group_id in group_ids:
             }
         )
         profile_groups = mc.send_request(members, data)
-        profile_groups_df = pd.concat([profile_groups_df, pd.DataFrame(profile_groups["data"][0]["groupMembers"])])
+        profile_groups_df = pd.concat(
+            [
+                profile_groups_df,
+                pd.DataFrame(profile_groups["data"][0]["groupMembers"])
+            ]
+        )
         if profile_groups.get("meta").get("pagination").get("next"):
             page_token = profile_groups.get("meta").get("pagination").get("next")
 
