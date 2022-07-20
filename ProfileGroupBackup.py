@@ -9,7 +9,15 @@ find_groups = "/api/directory/find-groups"
 members = "/api/directory/get-group-members"
 
 # Request body
-find_groups_data = str({"meta": {"pagination": {"pageSize": 500}}})
+find_groups_data = str(
+    {
+        "meta": {
+            "pagination": {
+                "pageSize": 500
+            }
+        }
+    }
+)
 
 # Make request
 groups = mc.send_request(find_groups, find_groups_data)
@@ -33,7 +41,7 @@ group_ids = dict(zip(groups_df["description"], groups_df["id"]))
 
 # Loop over dictionary
 for group_id in group_ids:
-    data = str(
+    members_data = str(
         {
             "meta": {
                 "pagination": {
@@ -47,7 +55,7 @@ for group_id in group_ids:
             ]
         }
     )
-    profile_groups = mc.send_request(members, data)
+    profile_groups = mc.send_request(members, members_data)
     print(f"File saved as data/{group_id}.xlsx\n")
     profile_groups_df = pd.DataFrame(profile_groups["data"][0]["groupMembers"])
 
@@ -55,7 +63,7 @@ for group_id in group_ids:
         page_token = profile_groups.get("meta").get("pagination").get("next")
 
     while "next" in profile_groups.get("meta").get("pagination"):
-        data = str(
+        members_data = str(
             {
                 "meta": {
                     "pagination": {
@@ -70,7 +78,7 @@ for group_id in group_ids:
                 ]
             }
         )
-        profile_groups = mc.send_request(members, data)
+        profile_groups = mc.send_request(members, members_data)
         profile_groups_df = pd.concat(
             [
                 profile_groups_df,
@@ -80,7 +88,4 @@ for group_id in group_ids:
         if profile_groups.get("meta").get("pagination").get("next"):
             page_token = profile_groups.get("meta").get("pagination").get("next")
 
-    profile_groups_df.to_excel(
-        f"data/{group_id}.xlsx",
-        index=False,
-    )
+    profile_groups_df.to_excel(f"data/{group_id}.xlsx", index=False)
