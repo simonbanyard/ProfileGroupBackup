@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 
 import pandas as pd
 
@@ -9,27 +10,19 @@ find_groups = "/api/directory/find-groups"
 members = "/api/directory/get-group-members"
 
 # Request body
-find_groups_data = str(
-    {
-        "meta": {
-            "pagination": {
-                "pageSize": 500
-            }
-        }
-    }
-)
+find_groups_data = str({"meta": {"pagination": {"pageSize": 500}}})
 
 # Make request
 groups = mc.send_request(find_groups, find_groups_data)
 
-# Check that a directory exists, if it doesnt, create it
-if not os.path.isdir("data"):
-    os.mkdir("data")
+today = datetime.now()
+directory_name = today.strftime("%Y%m%d-%H%M%S")
+os.mkdir(directory_name)
 
 # Export data to Excel with Pandas
 groups_df = pd.DataFrame(groups["data"][0]["folders"])
 groups_df.to_excel(
-    "data/Profile Groups List.xlsx",
+    f"{directory_name}/Profile Groups List.xlsx",
     index=False,
     columns=["description", "userCount", "folderCount", "id", "parentId"],
 )
@@ -44,20 +37,12 @@ request_count = 0
 for group_id in group_ids:
     members_data = str(
         {
-            "meta": {
-                "pagination": {
-                    "pageSize": 500
-                }
-            },
-            "data": [
-                {
-                    "id": group_ids[group_id]
-                }
-            ]
+            "meta": {"pagination": {"pageSize": 500}},
+            "data": [{"id": group_ids[group_id]}],
         }
     )
     profile_groups = mc.send_request(members, members_data)
-    print(f"File saved as data/{group_id}.xlsx\n")
+    print(f"File saved as {directory_name}/{group_id}.xlsx\n")
     profile_groups_df = pd.DataFrame(profile_groups["data"][0]["groupMembers"])
 
     if profile_groups.get("meta").get("pagination").get("next"):
@@ -66,30 +51,18 @@ for group_id in group_ids:
     while "next" in profile_groups.get("meta").get("pagination"):
         members_data = str(
             {
-                "meta": {
-                    "pagination": {
-                        "pageSize": 500,
-                        "pageToken": page_token
-                    }
-                },
-                    "data": [
-                    {
-                        "id": group_ids[group_id]
-                    }
-                ]
+                "meta": {"pagination": {"pageSize": 500, "pageToken": page_token}},
+                "data": [{"id": group_ids[group_id]}],
             }
         )
         profile_groups = mc.send_request(members, members_data)
         profile_groups_df = pd.concat(
-            [
-                profile_groups_df,
-                pd.DataFrame(profile_groups["data"][0]["groupMembers"])
-            ]
+            [profile_groups_df, pd.DataFrame(profile_groups["data"][0]["groupMembers"])]
         )
         if profile_groups.get("meta").get("pagination").get("next"):
             page_token = profile_groups.get("meta").get("pagination").get("next")
 
-    profile_groups_df.to_excel(f"data/{group_id}.xlsx", index=False)
+    profile_groups_df.to_excel(f"{directory_name}/{group_id}.xlsx", index=False)
     request_count += 1
 
 print(f"{request_count} files downloaded.")
