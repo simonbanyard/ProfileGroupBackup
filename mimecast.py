@@ -1,7 +1,6 @@
 import base64
 import hashlib
 import hmac
-import json
 import time
 import uuid
 from configparser import ConfigParser
@@ -58,9 +57,8 @@ def send_request(uri, body):
             data=body,
         )
         response.raise_for_status()
-        print(f"Endpoint: {uri}")
         print(f"HTTP Response: {response.status_code}, Success!")
-        return json.loads(response.content)
+        return response.content
 
     except requests.HTTPError as err_h:
         return f"HTTP Error: {err_h}"
