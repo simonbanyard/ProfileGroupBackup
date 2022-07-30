@@ -6,6 +6,8 @@ import pandas as pd
 
 import mimecast as mc
 
+pd.io.formats.excel.ExcelFormatter.header_style = None
+
 # Add endpoints
 find_groups = "/api/directory/find-groups"
 members = "/api/directory/get-group-members"
@@ -64,11 +66,12 @@ for group_id in group_ids:
         profile_groups_df = pd.concat(
             [
                 profile_groups_df,
-                pd.DataFrame((profile_groups["data"][0]["groupMembers"])),
+                pd.DataFrame(profile_groups["data"][0]["groupMembers"]),
             ]
         )
         if profile_groups.get("meta").get("pagination").get("next"):
             page_token = profile_groups.get("meta").get("pagination").get("next")
+            print(page_token)
 
     if profile_groups_df.empty:
         print("No data to save, file skipped\n")
