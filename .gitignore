@@ -1,9 +1,19 @@
-/tempCodeRunnerFile.py
-/scratch.txt
-/data
-/.idea
-/.env
+# Project exclude paths
+*/venv/
+/__pycache__/
+/.idea/
+/.mypy_cache/
+/.nova/
+/.vscode/
+/data/
+/httpx/
+/mail/
+/requests/
 /.DS_Store
-/__pycache__
+/.env
+/.gitignore
+/*.ipynb
+/*.xlsx
+/*.xls
+/*.csv
 /secrets.ini
-/.pylintrc
