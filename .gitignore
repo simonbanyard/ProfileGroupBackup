@@ -1,6 +1,6 @@
 # Project exclude paths
-*/venv/
 /__pycache__/
+*/venv/
 /.idea/
 /.mypy_cache/
 /.nova/
@@ -9,11 +9,11 @@
 /httpx/
 /mail/
 /requests/
-/.DS_Store
-/.env
-/.gitignore
-/*.ipynb
-/*.xlsx
-/*.xls
-/*.csv
-/secrets.ini
+.DS_Store
+.env
+.gitignore
+*.ipynb
+*.xlsx
+*.xls
+*.csv
+secrets.ini
