@@ -10,6 +10,7 @@ pd.io.formats.excel.ExcelFormatter.header_style = None
 # Add endpoints
 find_groups = "/api/directory/find-groups"
 members = "/api/directory/get-group-members"
+grid = "eu"
 
 # Request body
 find_groups_data = {"meta": {"pagination": {"pageSize": 500}}}
@@ -18,7 +19,7 @@ find_groups_data = {"meta": {"pagination": {"pageSize": 500}}}
 print("=" * 80)
 print("Fetching list of Profile Groups")
 print("-" * 80)
-groups = mc.send_request(find_groups, find_groups_data)
+groups = mc.send_request(grid, find_groups, find_groups_data)
 
 today = datetime.now()
 directory_name = today.strftime("%Y%m%d-%H%M%S")
@@ -48,7 +49,7 @@ for group_id in group_ids:
     }
     print(f"Fetching {group_id}")
     print("-" * 80)
-    profile_groups = mc.send_request(members, members_data)
+    profile_groups = mc.send_request(grid, members, members_data)
     profile_groups_df = pd.DataFrame(profile_groups["data"][0]["groupMembers"])
 
     if profile_groups.get("meta").get("pagination").get("next"):
@@ -59,7 +60,7 @@ for group_id in group_ids:
             "meta": {"pagination": {"pageSize": 500, "pageToken": page_token}},
             "data": [{"id": group_ids[group_id]}],
         }
-        profile_groups = mc.send_request(members, members_data)
+        profile_groups = mc.send_request(grid, members, members_data)
         profile_groups_df = pd.concat(
             [
                 profile_groups_df,
